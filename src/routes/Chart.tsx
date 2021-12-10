@@ -15,9 +15,10 @@ interface IHistorical {
 
 interface ChartProps {
   coinId: string;
+  isDark: boolean;
 }
 
-function Chart({ coinId }: ChartProps) {
+function Chart({ coinId, isDark }: ChartProps) {
   const { isLoading, data } = useQuery<IHistorical[]>(
     ["ohlcv", coinId],
     () => fetchCoinHistory(coinId),
@@ -31,19 +32,27 @@ function Chart({ coinId }: ChartProps) {
         "Loading chart..."
       ) : (
         <ApexChart
-          type="line"
+          type="candlestick"
           series={[
             {
               name: "Price",
-              data: data?.map((price) => price.close),
+              data: data?.map((price) => ({
+                x: price.time_close,
+                y: [
+                  price.open.toFixed(2),
+                  price.high.toFixed(2),
+                  price.low.toFixed(2),
+                  price.close.toFixed(2),
+                ],
+              })),
             },
           ]}
           options={{
             theme: {
-              mode: "dark",
+              mode: isDark ? "dark" : "light",
             },
             chart: {
-              height: 300,
+              height: 350,
               width: 500,
               toolbar: {
                 show: false,
@@ -51,30 +60,30 @@ function Chart({ coinId }: ChartProps) {
               background: "transparent",
             },
             grid: {
-              show: false,
+              show: true,
             },
             stroke: {
               curve: "smooth",
-              width: 4,
+              width: 2,
             },
             yaxis: {
-              show: false,
+              show: true,
             },
             xaxis: {
               axisBorder: { show: false },
               axisTicks: { show: false },
-              labels: { show: false },
+              labels: { show: true },
               type: "datetime",
               categories: data?.map((price) => price.time_close),
             },
-            fill: {
-              type: "gradient",
-              gradient: {
-                gradientToColors: ["#0be881"],
-                stops: [0, 100],
-              },
-            },
-            colors: ["#0fbcf9"],
+            // fill: {
+            //   type: "gradient",
+            //   gradient: {
+            //     gradientToColors: ["#0be881"],
+            //     stops: [0, 100],
+            //   },
+            // },
+            // colors: ["#0fbcf9"],
             tooltip: {
               y: {
                 formatter: (value) => `$${value.toFixed(2)}`,

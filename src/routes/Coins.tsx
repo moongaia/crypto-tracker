@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -14,15 +14,15 @@ const Container = styled.div`
 const Header = styled.header`
   height: 10vh;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 `;
 
 const CoinList = styled.ul``;
 
 const Coin = styled.li`
-  background-color: white;
-  color: ${(props) => props.theme.bgColor};
+  background-color: ${(props) => props.theme.cardBgColor};
+  color: ${(props) => props.theme.textColor};
   border-radius: 15px;
   margin-bottom: 10px;
   a {
@@ -41,6 +41,14 @@ const Coin = styled.li`
 const Title = styled.h1`
   font-size: 48px;
   color: ${(props) => props.theme.accentColor};
+  width: 100%;
+  text-align: center;
+`;
+
+const ModeChangeButton = styled.div`
+  font-size: 25px;
+  cursor: pointer;
+  color: #ee9944;
 `;
 
 const Loader = styled.span`
@@ -64,7 +72,11 @@ interface ICoin {
   type: string;
 }
 
-function Coins() {
+interface ICoinsProps {
+  toggleDark: () => void;
+  isDark: boolean;
+}
+function Coins({ toggleDark, isDark }: ICoinsProps) {
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
   // const [coins, setCoins] = useState<CoinInterface[]>([]);
   // const [loading, setLoading] = useState(true);
@@ -79,11 +91,22 @@ function Coins() {
   // console.log(coins);
   return (
     <Container>
-      <Helmet>
-        <title>코인</title>
-      </Helmet>
+      <HelmetProvider>
+        <Helmet>
+          <title>코인</title>
+        </Helmet>
+      </HelmetProvider>
       <Header>
         <Title>코인</Title>
+        {isDark ? (
+          <ModeChangeButton onClick={toggleDark}>
+            <i className="far fa-lightbulb"></i>
+          </ModeChangeButton>
+        ) : (
+          <ModeChangeButton onClick={toggleDark}>
+            <i className="fas fa-lightbulb"></i>
+          </ModeChangeButton>
+        )}
       </Header>
       {isLoading ? (
         <Loader>Loading..</Loader>
